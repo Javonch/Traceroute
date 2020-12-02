@@ -40,9 +40,10 @@ class Traceroute(object):
             sender = self.create_sender()
             msg = 'measurement for class project, questions to student jtc131@case.edu or professor mxr136@case.edu'
             payload = bytes(msg + 'a' * (1472 - len(msg)), "ascii")
-            code, rtt, packet_length, ttl, port, ret_port, addr = self.trace(receiver, sender, payload, 0)
+            code, rtt, packet_length, ttl, addr = self.trace(receiver, sender, payload, 0)
         print("Type " + type(ret_port[1]))
-
+        if addr != dst_ip:
+            print('{}: IP MODIFIED'.format(self.dst))
         return ttl, rtt, (packet_length-56)
 
     def trace(self, receiver, sender, msg, strikes):
@@ -67,11 +68,11 @@ class Traceroute(object):
             finally:
                 receiver.close()
                 sender.close()
-            return code, rtt, len(packet), 30 - self.ttl, port, ret_port, addr
+            return code, rtt, len(packet), 30 - self.ttl, addr
         else:
             if strikes == 3:
                 print('Attempt failed. Aborting read')
-                return 3, -1, 55, -1
+                return 3, -1, 55, -1, -1
             else:
                 strikes += 1
                 print('Attempt failed. Trying again : Strike {} of 3'.format(strikes))

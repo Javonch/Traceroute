@@ -41,8 +41,7 @@ class Traceroute(object):
             msg = 'measurement for class project, questions to student jtc131@case.edu or professor mxr136@case.edu'
             payload = bytes(msg + 'a' * (1472 - len(msg)), "ascii")
             code, rtt, packet_length, ttl, addr = self.trace(receiver, sender, payload, 0)
-        print("Type " + type(ret_port[1]))
-        if addr != dst_ip:
+        if addr[0] != dst_ip:
             print('{}: IP MODIFIED'.format(self.dst))
         return ttl, rtt, (packet_length-56)
 

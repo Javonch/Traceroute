@@ -3,8 +3,6 @@ import socket
 import select
 import datetime
 import csv
-import pandas as pd
-import matplotlib.pyplot as plt
 
 
 class Traceroute(object):
@@ -69,7 +67,7 @@ class Traceroute(object):
             finally:
                 receiver.close()
                 sender.close()
-            return code, rtt, len(packet), ttl, port, ret_port, addr
+            return code, rtt, len(packet), 30 - self.ttl, port, ret_port, addr
         else:
             if strikes == 3:
                 print('Attempt failed. Aborting read')
@@ -108,21 +106,20 @@ class Traceroute(object):
 
 
 def create_csv(data):
+    """
+    Writes collected dataset to a csv file for analysis
+    :return:
+        Written csv file (data_set.csv)
+    """
     fields = ['Hop number', 'Round Trip Time']
     rows = []
     for part in data:
         rows.append(part[0:2])
-    with open('Data_Set.csv', 'w') as file:
+    with open('data_set.csv', 'w') as file:
         writer = csv.writer(file)
         writer.writerow(fields)
         writer.writerows(rows)
 
-
-def scatter(file):
-    df = pd.read_csv(file)
-    df.plot()  # plots all columns against index
-    df.plot(kind='scatter', x='Hop number', y='Round Trip Time')  # scatter plot
-    df.plot(kind='density')
 
 
 plottable_data = []

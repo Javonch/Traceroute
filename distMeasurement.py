@@ -11,17 +11,17 @@ class Traceroute(object):
         Constructor for traceroute (not really traceroute)
 
         Args:
-            dst (String): destination to probe
+            dst (String): destination to probe *can be website or ip address*
         """
         self.dst = dst
         self.ttl = 1
 
     def run(self):
         """
-        Do the thing (probe the destination)
+        Takes predefined destination and returns crucial details for later analysis
         :returns
             A tuple containing the total hop count, the rtt, and the amount of data (without the headers) sent in
-            the response
+            the response that was also contained in the original message to the server
         :raises
             IOError
         """
@@ -39,14 +39,14 @@ class Traceroute(object):
             receiver = self.create_receiver()
             sender = self.create_sender()
             msg = 'measurement for class project, questions to student jtc131@case.edu or professor mxr136@case.edu'
-            payload = bytes(msg + 'a' * (1472 - len(msg)), "ascii")
+            payload = bytes(msg + 'a' * (1472 - len(msg)), "ascii") # Packing message to see how much is sent back
             code, rtt, packet_length, ttl, addr = self.trace(receiver, sender, payload, 0)
         return ttl, rtt, (packet_length-56)
+# There are 56 bytes that aren't in the header of the datagram, which is the only original portion of the response
 
     def trace(self, receiver, sender, msg, strikes):
         time_start = datetime.datetime.now()
         sender.sendto(msg, (self.dst, 33434))
-        port = sender.getsockname()[1]
         r, w, e = select.select([receiver], [], [], 60)
         if receiver in r:
             try:
@@ -119,9 +119,13 @@ def create_csv(data):
         writer.writerows(rows)
 
 
-
 plottable_data = []
 sites = open('targets.txt', 'r').readlines()
+"""
+This allows us to read through a list of websites stores in a text file
+In this case, that file is 'targets.txt'. Would/should put in a procedure but no need
+for modularity
+"""
 for site in sites:
     probe = Traceroute('{}'.format(site.strip()))
     result = probe.run()
@@ -132,6 +136,7 @@ for datagram in plottable_data:
     avg += datagram[2]
 avg = avg/len(plottable_data)
 print('The average residual data amount was {}'.format(avg))
+# Doesn't interest me to see who messes up, just how much do most cites mess up by
 create_csv(plottable_data)
 
 

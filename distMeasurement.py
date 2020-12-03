@@ -47,7 +47,7 @@ class Traceroute(object):
         time_start = datetime.datetime.now()
         sender.sendto(msg, (self.dst, 33434))
         port = sender.getsockname()[1]
-        r, w, e = select.select([receiver], [], [], 300)
+        r, w, e = select.select([receiver], [], [], 60)
         if receiver in r:
             try:
                 packet, addr = receiver.recvfrom(1500)
